@@ -38,6 +38,11 @@ public class InventoryService {
                 existingInventory.setSellingPrice(updateInventory.getSellingPrice());
                 existingInventory.setLocation(updateInventory.getLocation());
                 existingInventory.setUpdatedAt(LocalDateTime.now());
+                if (updateInventory.getStatus() != null && updateInventory.getStatus().equalsIgnoreCase("SOLD")) {
+                    existingInventory.setStatus("SOLD");
+                } else {
+                    existingInventory.setStatus("MODIFIED");
+                }
                 Inventory savedInventory = inventoryRepository.save(existingInventory);
                 return ResponseEntity.ok(savedInventory);
             } else {
