@@ -1,5 +1,6 @@
 package com.bootcamp.inventory.service;
 
+import com.bootcamp.inventory.configuration.ItemType;
 import com.bootcamp.inventory.entity.Inventory;
 import com.bootcamp.inventory.repository.InventoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class InventoryService {
                 if (updateInventory.getCost() < 0) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cost cannot be negative");
                 }
+                if (!isValidItemType(updateInventory.getType())) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid inventory type: " + updateInventory.getType());
+                }
                 existingInventory.setCost(updateInventory.getCost());
                 existingInventory.setSellingPrice(updateInventory.getSellingPrice());
                 existingInventory.setLocation(updateInventory.getLocation());
@@ -42,6 +46,14 @@ public class InventoryService {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to update the inventory: " + e.getMessage());
+        }
+    }
+    private boolean isValidItemType(String type) {
+        try {
+            ItemType.valueOf(type.toUpperCase());
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
     }
 }
