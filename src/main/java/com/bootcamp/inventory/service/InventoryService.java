@@ -21,6 +21,9 @@ public class InventoryService {
             Optional<Inventory> existingInventoryOptional = inventoryRepository.findById(id);
             if (existingInventoryOptional.isPresent()) {
                 Inventory existingInventory = existingInventoryOptional.get();
+                if (!existingInventory.getSku().equals(updateInventory.getSku())) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SKU mismatch. Cannot update inventory with different SKU.");
+                }
                 if (updateInventory.getCost() < 0) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cost cannot be negative");
                 }
