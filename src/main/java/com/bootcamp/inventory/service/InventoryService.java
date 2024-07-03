@@ -22,6 +22,9 @@ public class InventoryService {
             Optional<Inventory> existingInventoryOptional = inventoryRepository.findById(id);
             if (existingInventoryOptional.isPresent()) {
                 Inventory existingInventory = existingInventoryOptional.get();
+                if (!existingInventory.getCreatedBy().equals(updateInventory.getCreatedBy())) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Created by mismatch. Cannot update inventory created by different user.");
+                }
                 if (!existingInventory.getSku().equals(updateInventory.getSku())) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SKU mismatch. Cannot update inventory with different SKU.");
                 }
