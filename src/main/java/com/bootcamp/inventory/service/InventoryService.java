@@ -47,7 +47,7 @@ public class InventoryService {
         return ResponseEntity.ok(savedInventory);
     }
 
-    private static void modifiedStatus(Inventory updateInventory, Inventory existingInventory) {
+    public static void modifiedStatus(Inventory updateInventory, Inventory existingInventory) {
         if (updateInventory.getStatus() != null && updateInventory.getStatus().equalsIgnoreCase("SOLD")) {
             existingInventory.setStatus("SOLD");
         } else existingInventory.setStatus("MODIFIED");
