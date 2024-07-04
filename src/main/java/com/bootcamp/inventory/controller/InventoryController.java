@@ -8,6 +8,7 @@ import com.bootcamp.inventory.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class InventoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Inventory>> getById(@PathVariable Long id) {
+    public ResponseEntity<Optional<Inventory>> getById(@PathVariable @Validated Long id) {
         Optional<Inventory> inventory = inventoryService.getById(id);
         return ResponseEntity.ok(inventory);
     }
