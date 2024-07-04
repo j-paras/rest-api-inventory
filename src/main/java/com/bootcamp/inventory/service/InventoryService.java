@@ -3,11 +3,13 @@ package com.bootcamp.inventory.service;
 import com.bootcamp.inventory.configuration.ItemType;
 import com.bootcamp.inventory.entity.Inventory;
 import com.bootcamp.inventory.repository.InventoryRepository;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -18,12 +20,99 @@ public class InventoryService {
     private InventoryRepository inventoryRepository;
     public Inventory saveInventory(Inventory inventory) {
         try {
-//            validateInventory(inventory);
-//            setDefaultValues(inventory);
+            validateInventory(inventory);
+            setDefaultValues(inventory);
             return inventoryRepository.save(inventory);
         } catch (Exception e) {
             throw new RuntimeException("Failed to save the inventory: " + e.getMessage());
         }
+    }
+
+    private void validateInventory(Inventory inventory) {
+        if (!typeIsValid(inventory.getType())) {
+            throw new Error("Invalid inventory type");
+        }
+        if (!locationIsValid(inventory.getLocation())) {
+            throw new Error("Invalid inventory location");
+        }
+        if (!attributesIsValid(inventory.getType(), inventory.getAttributes())) {
+            throw new Error("Invalid inventory attributes");
+        }
+        if (!priceIsValid(inventory.getCost())) {
+            throw new Error("Invalid inventory cost price");
+        }
+        if (!priceIsValid(inventory.getSellingPrice())) {
+            throw new Error("Invalid selling price");
+        }
+    }
+
+    private void setDefaultValues(Inventory inventory) {
+        inventory.setStatus("CREATED");
+        inventory.setCreatedAt(LocalDateTime.now());
+        inventory.setUpdatedAt(LocalDateTime.now());
+        inventory.setCreatedBy("admin");
+    }
+
+    private boolean typeIsValid(String type){
+        if(type.isEmpty()){
+            return false;
+        }
+        for(ItemType itemType : ItemType.values()){
+            if(type.toUpperCase().equals(itemType.name())){
+                return true;
+            }
+        }
+        return false;
+
+    }
+    private boolean locationIsValid(String location) {
+        if (location == null || location.isEmpty()) {
+            return false;
+        }
+        String pattern = "^.*$";
+        return location.matches(pattern);
+    }
+    private boolean priceIsValid(double price) {
+        if (price < 0.0 || price > 1000000.0) {
+            return false;
+        }
+        return Math.round(price * 100.0) / 100.0 == price;
+    }
+    private boolean attributesIsValid(String type, JsonNode attributes) {
+        switch (type) {
+            case "CAR":
+            case "BIKE":
+                return validateVehicleAttributes(attributes);
+            case "MOBILE":
+                return validateMobileAttributes(attributes);
+            default:
+                return false;
+        }
+    }
+
+    private boolean validateVehicleAttributes(JsonNode attributes) {
+        String vin = attributes.get("vin") != null ? attributes.get("vin").asText() : "";
+        String brand = attributes.get("brand") != null ? attributes.get("brand").asText() : "";
+        String model = attributes.get("model") != null ? attributes.get("model").asText() : "";
+        String yearStr = attributes.get("year") != null ? attributes.get("year").asText() : "";
+        int year;
+        try {
+            year = Integer.parseInt(yearStr);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return !vin.isEmpty() && !brand.isEmpty() && !model.isEmpty() && isValidYear(year, 2015);
+    }
+
+    private boolean validateMobileAttributes(JsonNode attributes) {
+        String imei = attributes.get("imei") != null ? attributes.get("imei").asText() : "";
+        String brand = attributes.get("brand") != null ? attributes.get("brand").asText() : "";
+        String model = attributes.get("model") != null ? attributes.get("model").asText() : "";
+        int year = attributes.get("year") != null ? attributes.get("year").asInt() : 0;
+        return !imei.isEmpty() && !brand.isEmpty() && !model.isEmpty() && isValidYear(year, 2020);
+    }
+    private boolean isValidYear(int current_year, int min_year){
+        return current_year>=min_year && current_year<= LocalDate.now().getYear();
     }
 
     public ResponseEntity<?> updateInventory(Long id, Inventory updateInventory) {

@@ -15,6 +15,12 @@ public class InventoryController {
     @Autowired
     private InventoryService inventoryService;
 
+    @PostMapping("/create")
+    public ResponseEntity<Inventory> saveInventory(@RequestBody Inventory inventory){
+        Inventory savedInventory=inventoryService.saveInventory(inventory);
+        return ResponseEntity.ok(savedInventory);
+    }
+
     @PutMapping(path = "/{id}")
     public ResponseEntity<?> updateInventory(@PathVariable("id") Long id, @RequestBody Inventory inventory) {
         try {
