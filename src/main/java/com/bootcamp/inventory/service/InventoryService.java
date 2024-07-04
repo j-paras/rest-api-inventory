@@ -16,6 +16,15 @@ public class InventoryService {
 
     @Autowired
     private InventoryRepository inventoryRepository;
+    public Inventory saveInventory(Inventory inventory) {
+        try {
+//            validateInventory(inventory);
+//            setDefaultValues(inventory);
+            return inventoryRepository.save(inventory);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save the inventory: " + e.getMessage());
+        }
+    }
 
     public ResponseEntity<?> updateInventory(Long id, Inventory updateInventory) {
         try {
