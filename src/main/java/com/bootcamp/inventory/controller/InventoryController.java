@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -14,6 +15,19 @@ import java.util.Optional;
 public class InventoryController {
     @Autowired
     private InventoryService inventoryService;
+
+    @GetMapping("/page/{pageNumber}/{pageSize}")
+    public ResponseEntity<List<Inventory>> getAllInventory(@RequestParam(defaultValue = "0") int pageNumber,
+                                                           @RequestParam(defaultValue = "10") int pageSize){
+        List<Inventory> inventories=inventoryService.getAllInventory(pageNumber,pageSize);
+        return ResponseEntity.ok(inventories);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Optional<Inventory>> getInventoryById(@PathVariable Long id) {
+        Optional<Inventory> inventory = inventoryService.getInventoryById(id);
+        return ResponseEntity.ok(inventory);
+    }
 
     @PostMapping("/create")
     public ResponseEntity<Inventory> saveInventory(@RequestBody Inventory inventory){
