@@ -5,12 +5,16 @@ import com.bootcamp.inventory.entity.Inventory;
 import com.bootcamp.inventory.repository.InventoryRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,6 +22,30 @@ public class InventoryService {
 
     @Autowired
     private InventoryRepository inventoryRepository;
+
+    public List<Inventory> getAllInventory(int pageNumber, int pageSize){
+        if (pageNumber < 0 || pageSize <= 0) {
+            throw new IllegalArgumentException("Page number and page size must be positive integers.");
+        }
+        try {
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+            Page<Inventory> page = inventoryRepository.findAll(pageable);
+            return page.getContent();
+        }catch (Exception e){
+            throw new RuntimeException("Failed to fetch all inventory:" + e.getMessage());
+        }
+    }
+    public Optional<Inventory> getInventoryById(Long id){
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("ID must be a positive non-zero integer.");
+        }
+        try{
+            return inventoryRepository.findById(id);
+        }catch (Exception e){
+            throw new RuntimeException("Failed to fetch inventory by id:" + e.getMessage());
+        }
+    }
+
     public Inventory saveInventory(Inventory inventory) {
         try {
             validateInventory(inventory);
