@@ -1,6 +1,8 @@
 package com.bootcamp.inventory.service;
 
 import com.bootcamp.inventory.configuration.ItemType;
+import com.bootcamp.inventory.controller.dto.CreateInventoryRequest;
+import com.bootcamp.inventory.controller.dto.PatchInventoryRequest;
 import com.bootcamp.inventory.entity.Inventory;
 import com.bootcamp.inventory.repository.InventoryRepository;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,7 +25,7 @@ public class InventoryService {
     @Autowired
     private InventoryRepository inventoryRepository;
 
-    public List<Inventory> getAllInventory(int pageNumber, int pageSize){
+    public List<Inventory> getAll(int pageNumber, int pageSize){
         if (pageNumber < 0 || pageSize <= 0) {
             throw new IllegalArgumentException("Page number and page size must be positive integers.");
         }
@@ -35,7 +37,7 @@ public class InventoryService {
             throw new RuntimeException("Failed to fetch all inventory:" + e.getMessage());
         }
     }
-    public Optional<Inventory> getInventoryById(Long id){
+    public Optional<Inventory> getById(Long id){
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("ID must be a positive non-zero integer.");
         }
@@ -46,9 +48,10 @@ public class InventoryService {
         }
     }
 
-    public Inventory saveInventory(Inventory inventory) {
+    public Inventory save(CreateInventoryRequest createInventoryRequest) {
+        validateInventory(createInventoryRequest);
+        Inventory inventory = new Inventory(createInventoryRequest);
         try {
-            validateInventory(inventory);
             setDefaultValues(inventory);
             return inventoryRepository.save(inventory);
         } catch (Exception e) {
@@ -209,6 +212,13 @@ public class InventoryService {
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public Inventory update(Long id, PatchInventoryRequest patchInventoryRequest) {
+        Inventory inventory = inventoryRepository.getById(id);
+        inventory.setCost(patchInventoryRequest.price);
+        inventory.setStatus(patchInventoryRequest.status);
+        inventoryRepository.save(inventory);
     }
 }
 

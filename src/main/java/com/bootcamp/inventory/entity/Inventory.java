@@ -1,5 +1,6 @@
 package com.bootcamp.inventory.entity;
 
+import com.bootcamp.inventory.controller.dto.CreateInventoryRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 
@@ -15,24 +16,15 @@ public class Inventory {
     @Column(nullable = false, unique = true)
     private String sku;
 
-    //    private Type type;
-//    public enum Type{
-//        WRAP, PROTEIN, VEGGIES, CHEESE, SAUCE
-//    }
     @Column(nullable = false)
     private String type;
 
     @Column(nullable = false)
     private String status;
-//    public enum Status{
-//        CREATED, MODIFIED, SOLD
-//    }
 
     @Column(nullable = false)
     private String location;
 
-    //    @Column(nullable = false, columnDefinition = "JSON")
-//    private JsonNode attributes;
     @Column(nullable = false, columnDefinition = "TEXT")
     private String attributes;
 
@@ -51,9 +43,14 @@ public class Inventory {
     @Column(nullable = false)
     private String createdBy;
 
+    public Inventory(CreateInventoryRequest createInventoryRequest) {
+        return Inventory();
+    }
+
     public void setId(long id){
         this.id=id;
     }
+
     public void setSku(String sku) {
         this.sku = sku;
     }
